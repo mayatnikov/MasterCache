@@ -1,0 +1,58 @@
+It's a simple system - a combination of REDIS / MongoDB for storage of records types
+key / value is accessible via HTTP-REST
+
+What you need:
+- java
+- gradle
+- redis
+- mongoDB
+====================================
+How to start:
+- start MongDB
+- start Redis
+- start prog. => gradle bootrun in directory with "build.gradle" file
+====================================
+- checking:
+ECHO TEST:
+curl -i -X POST \
+   -H "Accept:text/plain;charset=UTF-8"  \
+  -H "Content-Type:text/plain;charset=UTF-8" \
+  -d 'Это тело сообщения Это тело сообщения Это тело сообщения ' \
+ 'http://localhost:8888/echo?key=kkkk&exp=123'
+-------------
+Store value expire after 1 MIN:
+curl -i -X POST -H "Content-Type:text/plain" -d '1111111 2222222 3333333'  'http://localhost:8888/put?key=myKeyN012&exp=1'
+
+-------------
+Get this value from storage:
+curl -i -X POST -H "Content-Type:text/plain" 'http://localhost:8888/get?key=myKeyN012'
+
+=======================================
+Base URL for all requests:  http://server-name:8888/
+
+POST requests:
+echo - ping front server
+put - write in the cache
+get - get value from cache
+redis/put - write in the Redis only
+redis/get - get value from Redis
+mongo/put - write in Mongo only
+mongo/get - get value from  Mongo
+clear - clear mongo and redis
+mongo/clear - clear MongoDB
+redis/clear - clear redis memory
+stat - get statistics
+
+
+Input parameters for queries:
+key = value - required parameter in all operations
+exp = n - the number of minutes before the automatic deletion of records, is used only in put operations, the default value of 0, this recording never deleted
+<BODY> - http message body, put as value or response value
+
+========================================
+
+Key Search logic:
+1- attempt to select an entry from redis
+2- if Redis data is not, then search in MongoDB
+3- if the data is found in the record,  then add to the Redis
+4- return response
